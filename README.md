@@ -10,7 +10,7 @@ This project allows you to integrate the Inkbird IHT-2PB temperature sensor with
 ## Hardware Requirements
 
 - Inkbird IHT-2PB temperature sensor
-- An ESP32 board (tested with Espressif32 devkit-v4)
+- An ESP32 board (tested with Espressif32 devkit-v4 and Seeed XIAO ESP32C3)
   - for use with ESP32-C3 (like: [Seeed XIAO ESP32C3](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html) use the ESP32C3_Inkbird_IHT_2PB.yaml. As this uses the arduino-partitioning you might run into memory issues. Be sure for first time flash to use a usb cable if you change from esp-idf to arduino (issues described [here](https://esphome.io/components/bluetooth_proxy.html?highlight=bluetooth) ).
 
 ## Installation
