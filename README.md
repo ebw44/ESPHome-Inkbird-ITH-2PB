@@ -26,3 +26,4 @@ It provides 4 entities to Home assistant:
 
 ## References
 - https://gitlab.com/sensor-stuff/inkbird-iht-2pb-to-mqtt for the code to enable notification and parse the temperature values.
+- https://community.home-assistant.io/t/esp32-c3-with-ble-tracker-im-sharing-how-it-worked/526607 for getting ESP32-C3 to work
