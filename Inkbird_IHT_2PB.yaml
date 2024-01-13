@@ -1,0 +1,139 @@
+logger:
+
+api:
+  encryption:
+    key: !secret encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: !secret wifi_fallback_ssid
+    password: !secret wifi_fallback_password
+
+captive_portal:
+
+bluetooth_proxy:
+  active: true
+
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
+
+
+ble_client:
+  - mac_address: !secret ble_mac_address
+    id: inkbird_IHT_2PB_ble
+    on_connect:
+      then:
+        - lambda: |-
+            ESP_LOGD("ble_client_lambda", "Connected to BLE device");
+            id(inkbird_IHT_2PB_connected).publish_state(true);
+        # We need to add a small delay because on_connect is triggered before the device is fully connected
+        # see https://github.com/esphome/issues/issues/4153
+        # But even with a 10ms delay it doesn't seem to work
+        # - delay: 10ms
+        # - script.execute: activate_temperature_notifications
+    on_disconnect:
+      then:
+        - lambda: |-
+            ESP_LOGD("ble_client_lambda", "Disconnected from BLE device");
+            id(inkbird_IHT_2PB_connected).publish_state(false);
+
+script:
+  - id: activate_temperature_notifications
+    then:
+      - ble_client.ble_write:
+          id: inkbird_IHT_2PB_ble
+          service_uuid: 0000ffe0-0000-1000-8000-00805f9b34fb
+          characteristic_uuid: 0000ffe9-0000-1000-8000-00805f9b34fb
+          value: [0x55, 0xAA, 0x19, 0x01, 0x00, 0x19]
+      - ble_client.ble_write:
+          id: inkbird_IHT_2PB_ble
+          service_uuid: 0000ffe0-0000-1000-8000-00805f9b34fb
+          characteristic_uuid: 0000ffe4-0000-1000-8000-00805f9b34fb
+          value: [0x55, 0xAA, 0x1A, 0x01, 0x00, 0x1A]
+          # We get the error "Characteristic 0000FFE4-0000-1000-8000-00805F9B34FB does not allow writing"
+          # but this write is necessary to get temperature notifications
+
+switch:
+  - platform: ble_client
+    ble_client_id: inkbird_IHT_2PB_ble
+    name: "Inkbird IHT-2PB enable"
+
+button:
+  - platform: template
+    name: "Inkbird IHT-2PB notification"
+    on_press:
+      - script.execute: activate_temperature_notifications
+
+binary_sensor:
+  - platform: template
+    name: "Inkbird IHT-2PB connected"
+    id: inkbird_IHT_2PB_connected
+    icon: mdi:bluetooth-connect
+
+sensor:
+  - platform: template
+    name: "Inkbird IHT-2PB probe manual"
+    id: inkbird_IHT_2PB_probe0
+    icon: mdi:thermometer-probe
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: "temperature"
+    state_class: "measurement"
+  - platform: template
+    name: "Inkbird IHT-2PB probe 1"
+    id: inkbird_IHT_2PB_probe1
+    icon: mdi:thermometer-probe
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: "temperature"
+    state_class: "measurement"
+  - platform: template
+    name: "Inkbird IHT-2PB probe 2"
+    id: inkbird_IHT_2PB_probe2
+    icon: mdi:thermometer-probe
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: "temperature"
+    state_class: "measurement"
+
+  - platform: ble_client
+    ble_client_id: inkbird_IHT_2PB_ble
+    type: characteristic
+    name: "Inkbird IHT-2PB last probe data"
+    service_uuid: 0000ffe0-0000-1000-8000-00805f9b34fb
+    characteristic_uuid: 0000ffe4-0000-1000-8000-00805f9b34fb
+    notify: true
+    lambda: |-
+      if (x[2] != 2 && x[2] != 4 && x[2] != 6) {
+        return -1.0;
+      }
+      uint8_t probeNr = x[2] / 2;
+      float temperature;
+      if (x[4] >= 254) {
+          // negative
+          temperature = (float) ((255 * (x[4] - 255)) + (x[5]-255)) / 10;
+      } else if (x[4] <= 11){
+          //positive
+          temperature = (float) ((255 * x[4]) + x[5]) / 10;
+      } else {
+          return -1.0;
+      }
+
+      if (probeNr == 1) {
+        id(inkbird_IHT_2PB_probe0).publish_state(temperature);
+      } else if (probeNr == 2) {
+        id(inkbird_IHT_2PB_probe1).publish_state(temperature);
+      } else if (probeNr == 3) {
+        id(inkbird_IHT_2PB_probe2).publish_state(temperature);
+      }
+      return (float)probeNr;
