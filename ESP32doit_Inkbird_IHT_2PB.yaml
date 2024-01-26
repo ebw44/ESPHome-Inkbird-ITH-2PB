@@ -8,3 +8,5 @@ esp32:
     # Custom sdkconfig options
     # sdkconfig_options:
     #   COMPILER_OPTIMIZATION_SIZE: y
+
+<<: !include Inkbird_IHT_2PB.yaml
