@@ -1,23 +1,3 @@
-logger:
-
-api:
-  encryption:
-    key: !secret encryption_key
-
-ota:
-  password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: !secret wifi_fallback_ssid
-    password: !secret wifi_fallback_password
-
-captive_portal:
-
 bluetooth_proxy:
   active: true
 
@@ -26,7 +6,6 @@ esp32_ble_tracker:
     interval: 1100ms
     window: 1100ms
     active: true
-
 
 ble_client:
   - mac_address: !secret ble_mac_address
@@ -38,7 +17,7 @@ ble_client:
             id(inkbird_IHT_2PB_connected).publish_state(true);
         # We need to add a small delay because on_connect is triggered before the device is fully connected
         # see https://github.com/esphome/issues/issues/4153
-        # But even with a 10ms delay it doesn't seem to work
+        # But even with a 10ms delay it doesn't seem to work. So the solution is to add a button for the user to activate the notifications.
         # - delay: 10ms
         # - script.execute: activate_temperature_notifications
     on_disconnect:
