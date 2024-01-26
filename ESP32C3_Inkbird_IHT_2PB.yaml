@@ -1,0 +1,16 @@
+esphome:
+  name: testesp32c3
+  friendly_name: testEsp32C3
+  on_boot: #this is to avoid slow startup time because of BT and WiFi "interactions?" , check https://github.com/esphome/issues/issues/2941#issuecomment-1331851692
+    priority: 250
+    then:
+      - wait_until:
+          condition:
+            wifi.connected:
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+<<: !include Inkbird_IHT_2PB.yaml
