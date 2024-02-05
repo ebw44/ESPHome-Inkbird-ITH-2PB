@@ -33,4 +33,8 @@ wifi:
 
 captive_portal:
 
+bluetooth_proxy:
+  active: true
+
+
 <<: !include Inkbird_IHT_2PB.yaml

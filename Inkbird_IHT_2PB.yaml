@@ -1,12 +1,3 @@
-bluetooth_proxy:
-  active: true
-
-esp32_ble_tracker:
-  scan_parameters:
-    interval: 1100ms
-    window: 1100ms
-    active: true
-
 ble_client:
   - mac_address: !secret ble_mac_address
     id: inkbird_IHT_2PB_ble
