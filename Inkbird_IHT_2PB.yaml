@@ -6,11 +6,10 @@ ble_client:
         - lambda: |-
             ESP_LOGD("ble_client_lambda", "Connected to BLE device");
             id(inkbird_IHT_2PB_connected).publish_state(true);
-        # We need to add a small delay because on_connect is triggered before the device is fully connected
-        # see https://github.com/esphome/issues/issues/4153
-        # But even with a 10ms delay it doesn't seem to work. So the solution is to add a button for the user to activate the notifications.
-        # - delay: 10ms
-        # - script.execute: activate_temperature_notifications
+        # on_connect is triggered before the device is fully connected see https://github.com/esphome/issues/issues/4153
+        # But even with a 10ms delay it doesn't seem to work. So the solution is to add a button that is pressed and start the script to activate
+        # the notifications. This also allows the user to force the notifications manually.
+        - button.press: inkbird_IHT_2PB_notification
     on_disconnect:
       then:
         - lambda: |-
@@ -40,6 +39,7 @@ switch:
 
 button:
   - platform: template
+    id: inkbird_IHT_2PB_notification
     name: "Inkbird IHT-2PB notification"
     on_press:
       - script.execute: activate_temperature_notifications
