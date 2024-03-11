@@ -87,7 +87,7 @@ sensor:
       if (x[2] != 2 && x[2] != 4 && x[2] != 6) {
         return -1.0;
       }
-      uint8_t probeNr = x[2] / 2;
+      uint8_t probeNr = x[2] / 2 - 1;
       float temperature;
       if (x[4] >= 254) {
           // negative
@@ -99,11 +99,11 @@ sensor:
           return -1.0;
       }
 
-      if (probeNr == 1) {
+      if (probeNr == 0) {
         id(inkbird_IHT_2PB_probe0).publish_state(temperature);
-      } else if (probeNr == 2) {
+      } else if (probeNr == 1) {
         id(inkbird_IHT_2PB_probe1).publish_state(temperature);
-      } else if (probeNr == 3) {
+      } else if (probeNr == 2) {
         id(inkbird_IHT_2PB_probe2).publish_state(temperature);
       }
       return (float)probeNr;
