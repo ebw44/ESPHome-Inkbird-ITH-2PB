@@ -32,4 +32,5 @@ captive_portal:
 bluetooth_proxy:
   active: true
 
-<<: !include Inkbird_IHT_2PB.yaml
+packages:
+  ink_bird: !include Inkbird_IHT_2PB.yaml
